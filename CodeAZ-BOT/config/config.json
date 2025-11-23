@@ -1,0 +1,33 @@
+{
+  "bot": {
+    "token": "",
+    "prefix": ""
+  },
+  
+  "features": {
+    "channel": {
+      "enabled": false,
+      "channelID": 0
+    },
+    "xp": {
+      "enabled": false,
+      "send": {
+        "enabled": false,
+        "cooldown": 0,
+        "roleID": 0
+      }
+    },
+    "welcome": {
+      "enabled": false,
+      "channelID": 0,
+      "message": "",
+      "roleID": 0
+    },
+    "reactionroles": {
+      "enabled": false,
+      "channelID": 0,
+      "messageID": 0,
+      "roles": {}
+    }
+  }
+}
