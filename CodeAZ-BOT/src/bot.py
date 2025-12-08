@@ -2,6 +2,7 @@ from path import CONFIG_JSON, XP_JSON
 from discord.ext import commands
 import discord
 import json
+from log import logger
 
 """
 Please make sure your code works properly and follows the existing style of the project before submitting a pull request.
@@ -38,21 +39,26 @@ bot = commands.Bot(command_prefix=command_prefix, intents=intents, help_command=
 if config["features"]["channel"].get("enabled"):
     @bot.check
     async def globally_check_channel(ctx):
+        logger.debug(f"Checking if command is allowed in channel {ctx.channel.id}")
         return ctx.channel.id == channel
 
 if config["features"]["welcome"].get("enabled"):
     @bot.event
     async def on_member_join(member):
+        logger.info(f"New member joined: {member.name} (ID: {member.id})")
         channel = bot.get_channel(welcome_channel)
         if channel:
             await channel.send(f"{welcome_message}, {member.mention} 🎉")
         if config["features"]["welcome"].get("roleID"):
             role = discord.utils.get(member.guild.roles, id=welcome_role)
-            await member.add_roles(role)
+            if role:
+                await member.add_roles(role)
+                logger.info(f"Assigned role '{role.name}' to {member.name}")
 
 if config["features"]["reactionroles"].get("enabled"):
     @bot.event
     async def on_raw_reaction_add(payload):
+        logger.debug(f"Reaction added: {payload.emoji} by user {payload.user_id}")
         if payload.message_id != reaction_role_message:
             return
         
@@ -63,9 +69,11 @@ if config["features"]["reactionroles"].get("enabled"):
             member = guild.get_member(payload.user_id)
             if role and member:
                 await member.add_roles(role)
+                logger.info(f"Assigned role '{role.name}' to {member.name} for reaction {payload.emoji}")
 
     @bot.event
     async def on_raw_reaction_remove(payload):
+        logger.debug(f"Reaction removed: {payload.emoji} by user {payload.user_id}")
         if payload.message_id != reaction_role_message:
             return
 
@@ -76,6 +84,7 @@ if config["features"]["reactionroles"].get("enabled"):
             member = guild.get_member(payload.user_id)
             if role and member:
                 await member.remove_roles(role)
+                logger.info(f"Removed role '{role.name}' from {member.name} for reaction {payload.emoji}")
 
 if config["features"]["xp"].get("enabled"):
     @bot.event
@@ -106,7 +115,7 @@ if config["features"]["xp"].get("enabled"):
             sorted_users = sorted(xp_data.items(), key=lambda x: x[1], reverse=True)
 
             rank = next((i + 1 for i, (uid, _) in enumerate(sorted_users) if uid == user_id), 0)
-            await ctx.send(f"\u200b{rank}. {member.display_name} — {xp} XP")
+            await ctx.send(f"\u200b{rank}. {member.display_name} - {xp} XP")
             return
 
         top_users = sorted(xp_data.items(), key=lambda x: x[1], reverse=True)[:10]
@@ -135,6 +144,6 @@ if config["features"]["xp"].get("enabled"):
             with open(XP_JSON, "w", encoding="utf-8") as f:
                 json.dump(xp, f, indent=4)
                 
-            print(xp_send_role, amount, [m.id for m in members])
+            logger.info(f"{ctx.author.name} sent {amount} XP to {[m.name for m in members]}")
 
 bot.run(discord_token)
