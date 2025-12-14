@@ -24,15 +24,20 @@
     },
     "welcome": {
       "enabled": false,
-      "channelID": 0,
       "message": "",
-      "roleID": 0
-    },
-    "reactionroles": {
-      "enabled": false,
       "channelID": 0,
-      "messageID": 0,
-      "roles": {}
+      "role": {
+        "enabled": false,
+        "roleID": 0
+      }
+    },
+    "reaction": {
+      "role": {
+        "enabled": false,
+        "channelID": 0,
+        "messageID": 0,
+        "roles": {}
+      }
     }
   }
 }

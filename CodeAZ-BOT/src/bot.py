@@ -29,13 +29,12 @@ if config["features"]["xp"]["role"].get("enabled"):
 if config["features"]["welcome"].get("enabled"):
     welcome_channel = config["features"]["welcome"].get("channelID")
     welcome_message = config["features"]["welcome"].get("message")
-    if config["features"]["welcome"].get("roleID"):
-        welcome_role = config["features"]["welcome"].get("roleID")
+    welcome_role = config["features"]["welcome"]["role"].get("roleID")
 
-if config["features"]["reactionroles"].get("enabled"):
-    reaction_role_channel = config["features"]["reactionroles"].get("channelID")
-    reaction_role_message = config["features"]["reactionroles"].get("messageID")
-    reaction_role = config["features"]["reactionroles"].get("roles")
+if config["features"]["reaction"].get("role")["enabled"]:
+    reaction_role_channel = config["features"]["reaction"]["role"].get("channelID")
+    reaction_role_message = config["features"]["reaction"]["role"].get("messageID")
+    reaction_role = config["features"]["reaction"]["role"].get("roles")
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=command_prefix, intents=intents, help_command=None)
@@ -53,13 +52,13 @@ if config["features"]["welcome"].get("enabled"):
         channel = bot.get_channel(welcome_channel)
         if channel:
             await channel.send(f"{welcome_message}, {member.mention} 🎉")
-        if config["features"]["welcome"].get("roleID"):
+        if config["features"]["welcome"]["role"].get("enabled"):
             role = discord.utils.get(member.guild.roles, id=welcome_role)
             if role:
                 await member.add_roles(role)
                 logger.info(f"Assigned role '{role.name}' to {member.name}")
 
-if config["features"]["reactionroles"].get("enabled"):
+if config["features"]["reaction"].get("role")["enabled"]:
     @bot.event
     async def on_raw_reaction_add(payload):
         logger.debug(f"Reaction added: {payload.emoji} by user {payload.user_id}")
