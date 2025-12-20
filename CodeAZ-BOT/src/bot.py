@@ -168,7 +168,7 @@ if config["features"]["xp"].get("enabled"):
                 
             logger.info(f"{ctx.author.name} sent {amount} XP to {[m.name for m in members]}")
 
-            await ctx.send(f"{ctx.author.mention} {amount} XP uğurla göndərildi!")
+            await ctx.reply(f"{amount} XP Uğurla Göndərildi!")
     
     if config["features"]["xp"]["give"].get("enabled"):
         @bot.command(name="xp-give")
@@ -197,7 +197,7 @@ if config["features"]["xp"].get("enabled"):
 
             logger.info(f"{ctx.author.name} gave {amount} XP to {member.name}")
 
-            await ctx.send(f"{ctx.author.mention} {amount} XP uğurla {member.mention} verildi!")
+            await ctx.reply(f"{amount} XP Uğurla Verildi!")
 
     if config["features"]["xp"]["bet"].get("enabled"):
         @bot.command(name="xp-bet")
@@ -234,24 +234,24 @@ if config["features"]["xp"].get("enabled"):
             else:
                 logger.info(f"{ctx.author.name} lost {amount}")
 
-            await ctx.send(f"{ctx.author.mention} {amount} XP {'qazandın' if winner else 'uduzdun'}!")
+            await ctx.reply(f"{amount} XP {'Qazandın' if winner else 'Uduzdun'}!")
 
     @xpsend.error
     async def xp_send_error(ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
             seconds_left = math.ceil(error.retry_after)
-            await ctx.send(f"{ctx.author.mention} Bu əmri təkrar etmək üçün {seconds_left} saniyə gözləməlisiniz!")
+            await ctx.reply(f"Bu əmri təkrar etmək üçün {seconds_left} saniyə gözləməlisiniz!")
 
     @xp_give.error
     async def xp_give_error(ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
             seconds_left = math.ceil(error.retry_after)
-            await ctx.send(f"{ctx.author.mention} Bu əmri təkrar etmək üçün {seconds_left} saniyə gözləməlisiniz!")
+            await ctx.reply(f"Bu əmri təkrar etmək üçün {seconds_left} saniyə gözləməlisiniz!")
         
     @xp_bet.error
     async def xp_bet_error(ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
             seconds_left = math.ceil(error.retry_after)
-            await ctx.send(f"{ctx.author.mention} Bu əmri təkrar etmək üçün {seconds_left} saniyə gözləməlisiniz!")
+            await ctx.reply(f"Bu əmri təkrar etmək üçün {seconds_left} saniyə gözləməlisiniz!")
 
 bot.run(discord_token)
