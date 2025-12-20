@@ -208,6 +208,10 @@ if config["features"]["xp"].get("enabled"):
             
             if amount <= 0:
                 return
+
+            if amount > 1000:
+                ctx.reply("Maksimum mərc miqdarı 1000 XP-dir!")
+                return
             
             with open(XP_JSON, "r", encoding="utf-8") as file:
                 xp = json.load(file)
