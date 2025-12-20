@@ -1,8 +1,10 @@
+from flask import ctx
 from path import CONFIG_JSON, XP_JSON
 from discord.ext import commands
 import discord
 import random
 import json
+import math
 from log import logger
 
 """
@@ -166,6 +168,8 @@ if config["features"]["xp"].get("enabled"):
                 json.dump(xp, f, indent=4)
                 
             logger.info(f"{ctx.author.name} sent {amount} XP to {[m.name for m in members]}")
+
+            await ctx.send(f"{ctx.author.mention} {amount} XP uğurla göndərildi!")
     
     if config["features"]["xp"]["give"].get("enabled"):
         @bot.command(name="xp-give")
@@ -193,6 +197,8 @@ if config["features"]["xp"].get("enabled"):
                 json.dump(xp, file, indent=4)
 
             logger.info(f"{ctx.author.name} gave {amount} XP to {member.name}")
+
+            await ctx.send(f"{ctx.author.mention} {amount} XP uğurla {member.mention} verildi!")
 
     if config["features"]["xp"]["bet"].get("enabled"):
         @bot.command(name="xp-bet")
@@ -228,5 +234,25 @@ if config["features"]["xp"].get("enabled"):
                 logger.info(f"{ctx.author.name} won {amount}")
             else:
                 logger.info(f"{ctx.author.name} lost {amount}")
+
+            await ctx.send(f"{ctx.author.mention} {amount} XP {"qazandın" if winner else "uduzdun"}!")
+
+    @xpsend.error
+    async def xp_send_error(ctx, error):
+        if isinstance(error, commands.CommandOnCooldown):
+            seconds_left = math.ceil(error.retry_after)
+            await ctx.send(f"{ctx.author.mention} Bu əmri təkrar etmək üçün {seconds_left} saniyə gözləməlisiniz!")
+
+    @xp_give.error
+    async def xp_give_error(ctx, error):
+        if isinstance(error, commands.CommandOnCooldown):
+            seconds_left = math.ceil(error.retry_after)
+            await ctx.send(f"{ctx.author.mention} Bu əmri təkrar etmək üçün {seconds_left} saniyə gözləməlisiniz!")
+        
+    @xp_bet.error
+    async def xp_bet_error(ctx, error):
+        if isinstance(error, commands.CommandOnCooldown):
+            seconds_left = math.ceil(error.retry_after)
+            await ctx.send(f"{ctx.author.mention} Bu əmri təkrar etmək üçün {seconds_left} saniyə gözləməlisiniz!")
 
 bot.run(discord_token)
