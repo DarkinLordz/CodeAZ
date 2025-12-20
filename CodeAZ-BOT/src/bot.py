@@ -23,6 +23,7 @@ if config["features"]["channel"].get("enabled"):
 if config["features"]["xp"]["send"].get("enabled"):
     xp_send_role = config["features"]["xp"]["send"].get("roleID")
     xp_send_cooldowon = config["features"]["xp"]["send"].get("cooldown")
+    xp_send_maximum = config["features"]["xp"]["send"].get("maximum")
 
 if config["features"]["xp"]["role"].get("enabled"):
     xp_role_treshold = config["features"]["xp"]["role"].get("treshold")
@@ -31,10 +32,12 @@ if config["features"]["xp"]["role"].get("enabled"):
 if config["features"]["xp"]["give"].get("enabled"):
     xp_give_role = config["features"]["xp"]["give"].get("roleID")
     xp_give_cooldown = config["features"]["xp"]["give"].get("cooldown")
+    xp_give_maximum = config["features"]["xp"]["give"].get("maximum")
 
 if config["features"]["xp"]["bet"].get("enabled"):
     xp_bet_role = config["features"]["xp"]["bet"].get("roleID")
     xp_bet_cooldown = config["features"]["xp"]["bet"].get("cooldown")
+    xp_bet_maximum = config["features"]["xp"]["bet"].get("maximum")
 
 if config["features"]["welcome"].get("enabled"):
     welcome_channel = config["features"]["welcome"].get("channelID")
