@@ -1,4 +1,3 @@
-from flask import ctx
 from path import CONFIG_JSON, XP_JSON
 from discord.ext import commands
 import discord
