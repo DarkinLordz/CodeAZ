@@ -4,12 +4,10 @@ import discord
 import random
 import json
 import math
+import aiohttp
 from log import logger
 
-"""
-Please make sure your code works properly and follows the existing style of the project before submitting a pull request.
-I appreciate all contributions in advance, thank you for helping improve this project.
-"""
+# -- Configuration -- #
 
 with open(CONFIG_JSON, "r", encoding="utf-8") as file:
     config = json.load(file)
@@ -44,6 +42,10 @@ if config["features"]["welcome"].get("enabled"):
     welcome_message = config["features"]["welcome"].get("message")
     welcome_role = config["features"]["welcome"]["role"].get("roleID")
 
+if config["features"]["meme"].get("enabled"):
+    meme_cooldown = config["features"]["meme"].get("cooldown")
+    meme_nsfw = config["features"]["meme"].get("nsfw")
+
 if config["features"]["reaction"].get("role")["enabled"]:
     reaction_role_channel = config["features"]["reaction"]["role"].get("channelID")
     reaction_role_message = config["features"]["reaction"]["role"].get("messageID")
@@ -52,11 +54,17 @@ if config["features"]["reaction"].get("role")["enabled"]:
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=command_prefix, intents=intents, help_command=None)
 
+# -- Functions -- #
+
+# -- Channel -- #
+
 if config["features"]["channel"].get("enabled"):
     @bot.check
     async def globally_check_channel(ctx):
         logger.debug(f"Checking if command is allowed in channel {ctx.channel.id}")
         return ctx.channel.id == channel
+
+# -- Welcome -- #
 
 if config["features"]["welcome"].get("enabled"):
     @bot.event
@@ -70,6 +78,8 @@ if config["features"]["welcome"].get("enabled"):
             if role:
                 await member.add_roles(role)
                 logger.info(f"Assigned role '{role.name}' to {member.name}")
+
+# -- Reaction Role -- #
 
 if config["features"]["reaction"].get("role")["enabled"]:
     @bot.event
@@ -102,6 +112,8 @@ if config["features"]["reaction"].get("role")["enabled"]:
                 await member.remove_roles(role)
                 logger.info(f"Removed role '{role.name}' from {member.name} for reaction {payload.emoji}")
 
+# -- XP System -- #
+
 if config["features"]["xp"].get("enabled"):
     @bot.event
     async def on_message(message):
@@ -118,13 +130,14 @@ if config["features"]["xp"].get("enabled"):
         with open(XP_JSON, "w", encoding="utf-8") as file:
             json.dump(xp_data, file, indent=4)
 
-        if current_xp >= xp_role_treshold:
-            guild = message.guild
-            member = message.author
-            role = discord.utils.get(guild.roles, id=xp_role_role)
-            if role and role not in member.roles:
-                await member.add_roles(role)
-                logger.info(f"Assigned role '{role.name}' to {member.name} for reaching {current_xp} XP")
+        if config["features"]["xp"]["role"].get("enabled"):
+            if current_xp >= xp_role_treshold:
+                guild = message.guild
+                member = message.author
+                role = discord.utils.get(guild.roles, id=xp_role_role)
+                if role and role not in member.roles:
+                    await member.add_roles(role)
+                    logger.info(f"Assigned role '{role.name}' to {member.name} for reaching {current_xp} XP")
 
         await bot.process_commands(message)
 
@@ -156,7 +169,7 @@ if config["features"]["xp"].get("enabled"):
     if config["features"]["xp"]["send"].get("enabled"):
         @bot.command(name="xp-send")
         @commands.cooldown(1, xp_send_cooldown, commands.BucketType.user)
-        async def xpsend(ctx, amount: int, *members: discord.Member):
+        async def xp_send(ctx, amount: int, *members: discord.Member):
             if xp_send_role not in [r.id for r in ctx.author.roles]:
                 return
 
@@ -178,6 +191,12 @@ if config["features"]["xp"].get("enabled"):
             logger.info(f"{ctx.author.name} sent {amount} XP to {[m.name for m in members]}")
 
             await ctx.reply(f"{amount} XP Göndərildi!")
+        
+        @xp_send.error
+        async def xp_send_error(ctx, error):
+            if isinstance(error, commands.CommandOnCooldown):
+                seconds_left = math.ceil(error.retry_after)
+                await ctx.reply(f"Bu əmri təkrar etmək üçün {seconds_left} saniyə gözləməlisiniz!")
     
     if config["features"]["xp"]["give"].get("enabled"):
         @bot.command(name="xp-give")
@@ -210,6 +229,12 @@ if config["features"]["xp"].get("enabled"):
             logger.info(f"{ctx.author.name} gave {amount} XP to {member.name}")
 
             await ctx.reply(f"{amount} XP Verildi!")
+
+        @xp_give.error
+        async def xp_give_error(ctx, error):
+            if isinstance(error, commands.CommandOnCooldown):
+                seconds_left = math.ceil(error.retry_after)
+                await ctx.reply(f"Bu əmri təkrar etmək üçün {seconds_left} saniyə gözləməlisiniz!")
 
     if config["features"]["xp"]["bet"].get("enabled"):
         @bot.command(name="xp-bet")
@@ -250,21 +275,42 @@ if config["features"]["xp"].get("enabled"):
                 logger.info(f"{ctx.author.name} lost {amount}")
 
             await ctx.reply(f"{amount} XP {'Qazandın' if winner else 'Uduzdun'}!")
-
-    @xpsend.error
-    async def xp_send_error(ctx, error):
-        if isinstance(error, commands.CommandOnCooldown):
-            seconds_left = math.ceil(error.retry_after)
-            await ctx.reply(f"Bu əmri təkrar etmək üçün {seconds_left} saniyə gözləməlisiniz!")
-
-    @xp_give.error
-    async def xp_give_error(ctx, error):
-        if isinstance(error, commands.CommandOnCooldown):
-            seconds_left = math.ceil(error.retry_after)
-            await ctx.reply(f"Bu əmri təkrar etmək üçün {seconds_left} saniyə gözləməlisiniz!")
         
-    @xp_bet.error
-    async def xp_bet_error(ctx, error):
+        @xp_bet.error
+        async def xp_bet_error(ctx, error):
+            if isinstance(error, commands.CommandOnCooldown):
+                seconds_left = math.ceil(error.retry_after)
+                await ctx.reply(f"Bu əmri təkrar etmək üçün {seconds_left} saniyə gözləməlisiniz!")
+
+# -- Meme -- #
+
+if config["features"]["meme"].get("enabled"):
+    @bot.command(name="meme")
+    @commands.cooldown(1, meme_cooldown, commands.BucketType.user)
+    async def meme(ctx):
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get("https://meme-api.com/gimme") as resp:
+                if resp.status != 200:
+                    return
+                data = await resp.json()
+                if not meme_nsfw:
+                    if data.get("nsfw") and not ctx.channel.is_nsfw():
+                        return
+
+        embed = discord.Embed(
+            title=data.get("title", "Meme"),
+            color=discord.Color.random()
+        )
+        embed.set_image(url=data.get("url"))
+        embed.set_footer(text=f"r/{data.get('subreddit', 'unknown')}")
+
+        logger.info(f"{ctx.author.name} requested a meme")
+
+        await ctx.reply(embed=embed)
+
+    @meme.error
+    async def meme_error(ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
             seconds_left = math.ceil(error.retry_after)
             await ctx.reply(f"Bu əmri təkrar etmək üçün {seconds_left} saniyə gözləməlisiniz!")

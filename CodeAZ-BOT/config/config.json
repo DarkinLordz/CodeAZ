@@ -44,6 +44,11 @@
         "roleID": 0
       }
     },
+    "meme": {
+      "enabled": false,
+      "nsfw": false,
+      "cooldown": 0
+    },
     "reaction": {
       "role": {
         "enabled": false,
