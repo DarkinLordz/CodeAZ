@@ -11,7 +11,9 @@
     },
     "xp": {
       "enabled": false,
+      "command-name": "xp",
       "send": {
+        "command-name": "xp-send",
         "enabled": false,
         "cooldown": 0,
         "maximum": 0,
@@ -24,12 +26,14 @@
       },
       "give": {
         "enabled": false,
+        "command-name": "xp-give",
         "cooldown": 0,
         "maximum": 0,
         "roleID": 0
       },
       "bet": {
         "enabled": false,
+        "command-name": "xp-bet",
         "cooldown": 0,
         "maximum": 0,
         "roleID": 0
@@ -46,6 +50,7 @@
     },
     "meme": {
       "enabled": false,
+      "command-name": "meme",
       "nsfw": false,
       "cooldown": 0
     },
