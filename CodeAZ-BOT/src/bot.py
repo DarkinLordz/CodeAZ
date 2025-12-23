@@ -18,11 +18,11 @@ command_prefix = config["bot"].get("prefix")
 if config["features"]["channel"].get("enabled"):
     channel = config["features"]["channel"].get("channelID")
 
-if config["features"]["xp"]["send"].get("enabled"):
-    xp_command = config["features"]["xp"].get("command-name")
+if config["features"]["xp"].get("enabled"):
+    xp_leaderboard_command = config["features"]["xp"].get("command")
 
 if config["features"]["xp"]["send"].get("enabled"):
-    xp_send_command = config["features"]["xp"]["send"].get("command-name")
+    xp_send_command = config["features"]["xp"]["send"].get("command")
     xp_send_role = config["features"]["xp"]["send"].get("roleID")
     xp_send_cooldown = config["features"]["xp"]["send"].get("cooldown")
     xp_send_maximum = config["features"]["xp"]["send"].get("maximum")
@@ -32,13 +32,13 @@ if config["features"]["xp"]["role"].get("enabled"):
     xp_role_role = config["features"]["xp"]["role"].get("roleID")
 
 if config["features"]["xp"]["give"].get("enabled"):
-    xp_give_command = config["features"]["xp"]["give"].get("command-name")
+    xp_give_command = config["features"]["xp"]["give"].get("command")
     xp_give_role = config["features"]["xp"]["give"].get("roleID")
     xp_give_cooldown = config["features"]["xp"]["give"].get("cooldown")
     xp_give_maximum = config["features"]["xp"]["give"].get("maximum")
 
 if config["features"]["xp"]["bet"].get("enabled"):
-    xp_bet_command = config["features"]["xp"]["bet"].get("command-name")
+    xp_bet_command = config["features"]["xp"]["bet"].get("command")
     xp_bet_role = config["features"]["xp"]["bet"].get("roleID")
     xp_bet_cooldown = config["features"]["xp"]["bet"].get("cooldown")
     xp_bet_maximum = config["features"]["xp"]["bet"].get("maximum")
@@ -49,11 +49,11 @@ if config["features"]["welcome"].get("enabled"):
     welcome_role = config["features"]["welcome"]["role"].get("roleID")
 
 if config["features"]["meme"].get("enabled"):
-    meme_command = config["features"]["meme"].get("command-name")
+    meme_command = config["features"]["meme"].get("command")
     meme_cooldown = config["features"]["meme"].get("cooldown")
     meme_nsfw = config["features"]["meme"].get("nsfw")
 
-if config["features"]["reaction"].get("role")["enabled"]:
+if config["features"]["reaction"]["role"].get("enabled"):
     reaction_role_channel = config["features"]["reaction"]["role"].get("channelID")
     reaction_role_message = config["features"]["reaction"]["role"].get("messageID")
     reaction_role = config["features"]["reaction"]["role"].get("roles")
@@ -148,7 +148,7 @@ if config["features"]["xp"].get("enabled"):
 
         await bot.process_commands(message)
 
-    @bot.command(name=meme_command)
+    @bot.command(name=xp_leaderboard_command)
     async def xp_leaderboard(ctx, member: discord.Member = None):
         with open(XP_JSON, "r", encoding="utf-8") as file:
             xp_data = json.load(file)
