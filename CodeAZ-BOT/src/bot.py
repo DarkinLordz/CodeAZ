@@ -19,6 +19,10 @@ if config["features"]["channel"].get("enabled"):
     channel = config["features"]["channel"].get("channelID")
 
 if config["features"]["xp"]["send"].get("enabled"):
+    xp_command = config["features"]["xp"].get("command-name")
+
+if config["features"]["xp"]["send"].get("enabled"):
+    xp_send_command = config["features"]["xp"]["send"].get("command-name")
     xp_send_role = config["features"]["xp"]["send"].get("roleID")
     xp_send_cooldown = config["features"]["xp"]["send"].get("cooldown")
     xp_send_maximum = config["features"]["xp"]["send"].get("maximum")
@@ -28,11 +32,13 @@ if config["features"]["xp"]["role"].get("enabled"):
     xp_role_role = config["features"]["xp"]["role"].get("roleID")
 
 if config["features"]["xp"]["give"].get("enabled"):
+    xp_give_command = config["features"]["xp"]["give"].get("command-name")
     xp_give_role = config["features"]["xp"]["give"].get("roleID")
     xp_give_cooldown = config["features"]["xp"]["give"].get("cooldown")
     xp_give_maximum = config["features"]["xp"]["give"].get("maximum")
 
 if config["features"]["xp"]["bet"].get("enabled"):
+    xp_bet_command = config["features"]["xp"]["bet"].get("command-name")
     xp_bet_role = config["features"]["xp"]["bet"].get("roleID")
     xp_bet_cooldown = config["features"]["xp"]["bet"].get("cooldown")
     xp_bet_maximum = config["features"]["xp"]["bet"].get("maximum")
@@ -43,6 +49,7 @@ if config["features"]["welcome"].get("enabled"):
     welcome_role = config["features"]["welcome"]["role"].get("roleID")
 
 if config["features"]["meme"].get("enabled"):
+    meme_command = config["features"]["meme"].get("command-name")
     meme_cooldown = config["features"]["meme"].get("cooldown")
     meme_nsfw = config["features"]["meme"].get("nsfw")
 
@@ -141,7 +148,7 @@ if config["features"]["xp"].get("enabled"):
 
         await bot.process_commands(message)
 
-    @bot.command(name=config["features"]["meme"].get("command-name"))
+    @bot.command(name=meme_command)
     async def xp_leaderboard(ctx, member: discord.Member = None):
         with open(XP_JSON, "r", encoding="utf-8") as file:
             xp_data = json.load(file)
@@ -167,7 +174,7 @@ if config["features"]["xp"].get("enabled"):
         await ctx.reply(leaderboard)
 
     if config["features"]["xp"]["send"].get("enabled"):
-        @bot.command(name=config["features"]["xp"]["send"].get("command_name"))
+        @bot.command(name=xp_send_command)
         @commands.cooldown(1, xp_send_cooldown, commands.BucketType.user)
         async def xp_send(ctx, amount: int, *members: discord.Member):
             if xp_send_role not in [r.id for r in ctx.author.roles]:
@@ -199,7 +206,7 @@ if config["features"]["xp"].get("enabled"):
                 await ctx.reply(f"Bu əmri təkrar etmək üçün {seconds_left} saniyə gözləməlisiniz!")
     
     if config["features"]["xp"]["give"].get("enabled"):
-        @bot.command(name=config["features"]["xp"]["give"].get("command_name"))
+        @bot.command(name=xp_give_command)
         @commands.cooldown(1, xp_give_cooldown, commands.BucketType.user)
         async def xp_give(ctx, amount: int, member: discord.Member):
             if xp_give_role not in [r.id for r in ctx.author.roles]:
@@ -237,7 +244,7 @@ if config["features"]["xp"].get("enabled"):
                 await ctx.reply(f"Bu əmri təkrar etmək üçün {seconds_left} saniyə gözləməlisiniz!")
 
     if config["features"]["xp"]["bet"].get("enabled"):
-        @bot.command(name=config["features"]["xp"]["bet"].get("command-name"))
+        @bot.command(name=xp_bet_command)
         @commands.cooldown(1, xp_bet_cooldown, commands.BucketType.user)
         async def xp_bet(ctx, amount: int):
             if xp_bet_role not in [r.id for r in ctx.author.roles]:
@@ -285,7 +292,7 @@ if config["features"]["xp"].get("enabled"):
 # -- Meme -- #
 
 if config["features"]["meme"].get("enabled"):
-    @bot.command(name=config["features"]["meme"].get("command-name"))
+    @bot.command(name=meme_command)
     @commands.cooldown(1, meme_cooldown, commands.BucketType.user)
     async def meme(ctx):
 
