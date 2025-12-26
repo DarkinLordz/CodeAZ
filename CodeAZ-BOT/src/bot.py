@@ -178,12 +178,18 @@ if config["features"]["xp"].get("enabled"):
         @commands.cooldown(1, xp_send_cooldown, commands.BucketType.user)
         async def xp_send(ctx, amount: int, *members: discord.Member):
             if xp_send_role not in [r.id for r in ctx.author.roles]:
+                await ctx.reply(f"Bu əmr üçün sizdə yetərli rol yoxdur!")
+                xp_send.reset_cooldown(ctx)
                 return
 
             if amount <= 0:
+                await ctx.reply(f"Miqdar 0-dan çox olmalıdır.")
+                xp_send.reset_cooldown(ctx)
                 return
 
             if amount > xp_send_maximum:
+                await ctx.reply(f"Miqdar {xp_send_maximum}-dan az olmalıdır.")
+                xp_send.reset_cooldown(ctx)
                 return
 
             with open(XP_JSON, "r", encoding="utf-8") as f:
