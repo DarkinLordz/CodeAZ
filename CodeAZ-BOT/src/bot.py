@@ -178,12 +178,18 @@ if config["features"]["xp"].get("enabled"):
         @commands.cooldown(1, xp_send_cooldown, commands.BucketType.user)
         async def xp_send(ctx, amount: int, *members: discord.Member):
             if xp_send_role not in [r.id for r in ctx.author.roles]:
+                await ctx.reply(f"Bu əmr üçün sizdə yetərli rol yoxdur!")
+                xp_send.reset_cooldown(ctx)
                 return
 
             if amount <= 0:
+                await ctx.reply(f"Miqdar 0-dan çox olmalıdır.")
+                xp_send.reset_cooldown(ctx)
                 return
 
             if amount > xp_send_maximum:
+                await ctx.reply(f"Miqdar {xp_send_maximum}-dan az olmalıdır.")
+                xp_send.reset_cooldown(ctx)
                 return
 
             with open(XP_JSON, "r", encoding="utf-8") as f:
@@ -210,12 +216,18 @@ if config["features"]["xp"].get("enabled"):
         @commands.cooldown(1, xp_give_cooldown, commands.BucketType.user)
         async def xp_give(ctx, amount: int, member: discord.Member):
             if xp_give_role not in [r.id for r in ctx.author.roles]:
+                await ctx.reply(f"Bu əmr üçün sizdə yetərli rol yoxdur!")
+                xp_give.reset_cooldown(ctx)
                 return
             
             if amount <= 0:
+                await ctx.reply(f"Miqdar 0-dan çox olmalıdır.")
+                xp_give.reset_cooldown(ctx)
                 return
             
             if amount > xp_give_maximum:
+                await ctx.reply(f"Miqdar {xp_give_maximum}-dan az olmalıdır.")
+                xp_give.reset_cooldown(ctx)
                 return
             
             with open(XP_JSON, "r", encoding="utf-8") as file:
@@ -225,6 +237,8 @@ if config["features"]["xp"].get("enabled"):
             receiver = str(member.id)
 
             if xp.get(giver, 0) < amount:
+                await ctx.reply(f"Sizdə kifayət qədər XP yoxdur.")
+                xp_give.reset_cooldown(ctx)
                 return
 
             xp[giver] -= amount
@@ -248,12 +262,18 @@ if config["features"]["xp"].get("enabled"):
         @commands.cooldown(1, xp_bet_cooldown, commands.BucketType.user)
         async def xp_bet(ctx, amount: int):
             if xp_bet_role not in [r.id for r in ctx.author.roles]:
+                await ctx.reply(f"Bu əmr üçün sizdə yetərli rol yoxdur!")
+                xp_bet.reset_cooldown(ctx)
                 return
             
             if amount <= 0:
+                await ctx.reply(f"Miqdar 0-dan çox olmalıdır")
+                xp_bet.reset_cooldown(ctx)
                 return
 
             if amount > xp_bet_maximum:
+                await ctx.reply(f"Miqdar {xp_bet_maximum}-dan az olmalıdır.")
+                xp_bet.reset_cooldown(ctx)
                 return
             
             with open(XP_JSON, "r", encoding="utf-8") as file:
@@ -262,6 +282,8 @@ if config["features"]["xp"].get("enabled"):
             bettor = str(ctx.author.id)
 
             if xp.get(bettor, 0) < amount:
+                await ctx.reply(f"Sizdə kifayət qədər XP yoxdur.")
+                xp_bet.reset_cooldown(ctx)
                 return
             
             logger.info(f"{ctx.author.name} bet {amount}")
@@ -299,6 +321,8 @@ if config["features"]["meme"].get("enabled"):
         async with aiohttp.ClientSession() as session:
             async with session.get("https://meme-api.com/gimme") as resp:
                 if resp.status != 200:
+                    await ctx.reply(f"Zəhmət olmasa bir necə dəqiqə sonra təkrar cəhd edin.")
+                    meme.reset_cooldown(ctx)
                     return
                 data = await resp.json()
                 if not meme_nsfw:
