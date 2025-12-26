@@ -210,12 +210,18 @@ if config["features"]["xp"].get("enabled"):
         @commands.cooldown(1, xp_give_cooldown, commands.BucketType.user)
         async def xp_give(ctx, amount: int, member: discord.Member):
             if xp_give_role not in [r.id for r in ctx.author.roles]:
+                await ctx.reply(f"Bu əmr üçün sizdə yetərli rol yoxdur!")
+                xp_give.reset_cooldown(ctx)
                 return
             
             if amount <= 0:
+                await ctx.reply(f"Miqdar 0-dan çox olmalıdır.")
+                xp_give.reset_cooldown(ctx)
                 return
             
             if amount > xp_give_maximum:
+                await ctx.reply(f"Miqdar {xp_give_maximum}-dan az olmalıdır.")
+                xp_give.reset_cooldown(ctx)
                 return
             
             with open(XP_JSON, "r", encoding="utf-8") as file:
@@ -225,6 +231,8 @@ if config["features"]["xp"].get("enabled"):
             receiver = str(member.id)
 
             if xp.get(giver, 0) < amount:
+                await ctx.reply(f"Sizdə yetər qədər XP yoxdur.")
+                xp_give.reset_cooldown(ctx)
                 return
 
             xp[giver] -= amount
