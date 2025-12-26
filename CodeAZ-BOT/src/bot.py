@@ -1,22 +1,3 @@
-
-"""
-~Docboard for CodeAZ-BOT/src/bot.py
-
-# A simple bot designed 
-# for the CodeAZ community server
-# with the discord.py API
-# by the CodeAZ community
-
-### Current features:
-- xp system
-- a leaderboard for the xp system
-- simple xp transfer commands, such as xp-give and xp-send
-- a basic "gambling" command with a 10% winrate
-- a meme command using the meme-api.com API
-- modifiable through the config file
-
-"""
-
 from path import CONFIG_JSON, XP_JSON
 from discord.ext import commands
 import discord
@@ -26,9 +7,7 @@ import math
 import aiohttp
 from log import logger
 
-#======================
 # -- Configuration -- #
-#======================
 
 with open(CONFIG_JSON, "r", encoding="utf-8") as file:
     config = json.load(file)
@@ -81,22 +60,18 @@ if config["features"]["reaction"]["role"].get("enabled"):
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=command_prefix, intents=intents, help_command=None)
-#==================
-# -- Functions -- #
-#==================
 
-#================
+# -- Functions -- #
+
 # -- Channel -- #
-#================
 
 if config["features"]["channel"].get("enabled"):
     @bot.check
     async def globally_check_channel(ctx):
         logger.debug(f"Checking if command is allowed in channel {ctx.channel.id}")
         return ctx.channel.id == channel
-#================
+
 # -- Welcome -- #
-#================
 
 if config["features"]["welcome"].get("enabled"):
     @bot.event
@@ -111,9 +86,7 @@ if config["features"]["welcome"].get("enabled"):
                 await member.add_roles(role)
                 logger.info(f"Assigned role '{role.name}' to {member.name}")
 
-#======================
 # -- Reaction Role -- #
-#======================
 
 if config["features"]["reaction"].get("role")["enabled"]:
     @bot.event
@@ -146,9 +119,7 @@ if config["features"]["reaction"].get("role")["enabled"]:
                 await member.remove_roles(role)
                 logger.info(f"Removed role '{role.name}' from {member.name} for reaction {payload.emoji}")
 
-#====================
 # -- XP System -- #
-#====================
 
 if config["features"]["xp"].get("enabled"):
     @bot.event
@@ -266,7 +237,7 @@ if config["features"]["xp"].get("enabled"):
             receiver = str(member.id)
 
             if xp.get(giver, 0) < amount:
-                await ctx.reply(f"Sizdə yetər qədər XP yoxdur.")
+                await ctx.reply(f"Sizdə kifayət qədər XP yoxdur.")
                 xp_give.reset_cooldown(ctx)
                 return
 
@@ -296,7 +267,7 @@ if config["features"]["xp"].get("enabled"):
                 return
             
             if amount <= 0:
-                await ctx.reply(f"Miqdar 0-dan çox olmalıdır.")
+                await ctx.reply(f"Miqdar 0-dan çox olmalıdır")
                 xp_bet.reset_cooldown(ctx)
                 return
 
@@ -311,7 +282,7 @@ if config["features"]["xp"].get("enabled"):
             bettor = str(ctx.author.id)
 
             if xp.get(bettor, 0) < amount:
-                await ctx.reply(f"Sizdə yetər qədər XP yoxdur.")
+                await ctx.reply(f"Sizdə kifayət qədər XP yoxdur.")
                 xp_bet.reset_cooldown(ctx)
                 return
             
@@ -340,9 +311,7 @@ if config["features"]["xp"].get("enabled"):
                 seconds_left = math.ceil(error.retry_after)
                 await ctx.reply(f"Bu əmri təkrar etmək üçün {seconds_left} saniyə gözləməlisiniz!")
 
-#======================
 # -- Meme -- #
-#======================
 
 if config["features"]["meme"].get("enabled"):
     @bot.command(name=meme_command)
@@ -352,14 +321,12 @@ if config["features"]["meme"].get("enabled"):
         async with aiohttp.ClientSession() as session:
             async with session.get("https://meme-api.com/gimme") as resp:
                 if resp.status != 200:
-                    await ctx.reply(f"Xəta baş verdi! zəhmət olmasa bir necə dəqiqə sonra təkrar cəhd edin.")
+                    await ctx.reply(f"Zəhmət olmasa bir necə dəqiqə sonra təkrar cəhd edin.")
                     meme.reset_cooldown(ctx)
                     return
                 data = await resp.json()
                 if not meme_nsfw:
                     if data.get("nsfw") and not ctx.channel.is_nsfw():
-                        #await ctx.reply(f"Bu kanal sfw-dir.")
-                        meme.reset_cooldown(ctx)
                         return
 
         embed = discord.Embed(
