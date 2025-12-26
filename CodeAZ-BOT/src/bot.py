@@ -6,8 +6,9 @@ import json
 import math
 import aiohttp
 from log import logger
-
+#======================
 # -- Configuration -- #
+#======================
 
 with open(CONFIG_JSON, "r", encoding="utf-8") as file:
     config = json.load(file)
@@ -60,18 +61,22 @@ if config["features"]["reaction"]["role"].get("enabled"):
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=command_prefix, intents=intents, help_command=None)
-
+#==================
 # -- Functions -- #
+#==================
 
+#================
 # -- Channel -- #
+#================
 
 if config["features"]["channel"].get("enabled"):
     @bot.check
     async def globally_check_channel(ctx):
         logger.debug(f"Checking if command is allowed in channel {ctx.channel.id}")
         return ctx.channel.id == channel
-
+#================
 # -- Welcome -- #
+#================
 
 if config["features"]["welcome"].get("enabled"):
     @bot.event
@@ -86,7 +91,9 @@ if config["features"]["welcome"].get("enabled"):
                 await member.add_roles(role)
                 logger.info(f"Assigned role '{role.name}' to {member.name}")
 
+#======================
 # -- Reaction Role -- #
+#======================
 
 if config["features"]["reaction"].get("role")["enabled"]:
     @bot.event
@@ -119,7 +126,9 @@ if config["features"]["reaction"].get("role")["enabled"]:
                 await member.remove_roles(role)
                 logger.info(f"Removed role '{role.name}' from {member.name} for reaction {payload.emoji}")
 
+#====================
 # -- XP System -- #
+#====================
 
 if config["features"]["xp"].get("enabled"):
     @bot.event
@@ -302,8 +311,10 @@ if config["features"]["xp"].get("enabled"):
             if isinstance(error, commands.CommandOnCooldown):
                 seconds_left = math.ceil(error.retry_after)
                 await ctx.reply(f"Bu əmri təkrar etmək üçün {seconds_left} saniyə gözləməlisiniz!")
-
+                
+#======================
 # -- Meme -- #
+#======================
 
 if config["features"]["meme"].get("enabled"):
     @bot.command(name=meme_command)
