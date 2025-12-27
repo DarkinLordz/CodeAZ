@@ -43,6 +43,12 @@ if config["features"]["xp"]["bet"].get("enabled"):
     xp_bet_cooldown = config["features"]["xp"]["bet"].get("cooldown")
     xp_bet_maximum = config["features"]["xp"]["bet"].get("maximum")
 
+if config["features"]["xp"]["daily"].get("enabled"):
+    xp_daily_command = config["features"]["xp"]["daily"].get("command")
+    xp_daily_maximum = config["features"]["xp"]["daily"].get("maximum")
+    xp_daily_minimum = config["features"]["xp"]["daily"].get("minimum")
+    xp_daily_role = config["features"]["xp"]["daily"].get("roleID")
+
 if config["features"]["welcome"].get("enabled"):
     welcome_channel = config["features"]["welcome"].get("channelID")
     welcome_message = config["features"]["welcome"].get("message")
@@ -88,7 +94,7 @@ if config["features"]["welcome"].get("enabled"):
 
 # -- Reaction Role -- #
 
-if config["features"]["reaction"].get("role")["enabled"]:
+if config["features"]["reaction"]["role"].get("enabled"):
     @bot.event
     async def on_raw_reaction_add(payload):
         logger.debug(f"Reaction added: {payload.emoji} by user {payload.user_id}")
@@ -311,13 +317,39 @@ if config["features"]["xp"].get("enabled"):
                 seconds_left = math.ceil(error.retry_after)
                 await ctx.reply(f"Bu əmri təkrar etmək üçün {seconds_left} saniyə gözləməlisiniz!")
 
+    if config["features"]["xp"]["daily"].get("enabled"):
+        @bot.command(name=xp_daily_command)
+        @commands.cooldown(1, 86400, commands.BucketType.user)
+        async def xp_daily(ctx):
+            if xp_daily_role not in [r.id for r in ctx.author.roles]:
+                await ctx.reply(f"Bu əmr üçün sizdə yetərli rol yoxdur!")
+                xp_daily.reset_cooldown(ctx)
+                return
+            
+            with open(XP_JSON, "r", encoding="utf-8") as file:
+                xp = json.load(file)
+            
+            user = str(ctx.author.id)
+            amount = random.randint(xp_daily_minimum, xp_daily_maximum)
+
+            xp[user] += amount
+
+            logger.info(f"{ctx.author.name} used daily and got {amount}")
+
+            await ctx.reply(f"{amount} XP qazandın!")
+
+        @xp_daily.error
+        async def xp_daily_error(ctx, error):
+            if isinstance(error, commands.CommandOnCooldown):
+                seconds_left = math.ceil(error.retry_after)
+                await ctx.reply(f"Bu əmri təkrar etmək üçün {seconds_left} saniyə gözləməlisiniz!")
+
 # -- Meme -- #
 
 if config["features"]["meme"].get("enabled"):
     @bot.command(name=meme_command)
     @commands.cooldown(1, meme_cooldown, commands.BucketType.user)
     async def meme(ctx):
-
         async with aiohttp.ClientSession() as session:
             async with session.get("https://meme-api.com/gimme") as resp:
                 if resp.status != 200:

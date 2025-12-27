@@ -37,6 +37,13 @@
         "cooldown": 3600,
         "maximum": 10,
         "roleID": 1424030146536411146
+      },
+      "daily": {
+        "enabled": false,
+        "command": "xp-daily",
+        "maximum": 50,
+        "minimum": 10,
+        "roleID": 1422169853753819277
       }
     },
     "welcome": {

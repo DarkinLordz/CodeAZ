@@ -37,6 +37,13 @@
         "cooldown": 0,
         "maximum": 0,
         "roleID": 0
+      },
+      "daily": {
+        "enabled": false,
+        "command": "",
+        "maximum": 0,
+        "minimum": 0,
+        "roleID": 0
       }
     },
     "welcome": {
