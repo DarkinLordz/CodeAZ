@@ -3,12 +3,13 @@
     "token": "",
     "prefix": ""
   },
-  
+
   "features": {
     "channel": {
       "enabled": false,
       "channelID": 0
     },
+
     "xp": {
       "enabled": false,
       "command": "",
@@ -46,6 +47,7 @@
         "roleID": 0
       }
     },
+
     "welcome": {
       "enabled": false,
       "message": "",
@@ -53,19 +55,22 @@
       "role": {
         "enabled": false,
         "roleID": 0
-      },
+      }
+    },
+
     "goodbye": {
       "enabled": false,
       "message": "",
       "channelID": 0
-    }
     },
+
     "meme": {
       "enabled": false,
       "command": "",
       "nsfw": false,
       "cooldown": 0
     },
+
     "reaction": {
       "role": {
         "enabled": false,
