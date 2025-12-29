@@ -1,5 +1,5 @@
 from path import CONFIG_JSON, XP_JSON
-from discord.ext import commands
+from discord.ext import commands, tasks
 import discord
 import random
 import json
@@ -19,6 +19,11 @@ if config["features"]["channel"].get("enabled"):
     channel = config["features"]["channel"].get("channelID")
 
 if config["features"]["xp"].get("enabled"):
+    try:
+        with open(XP_JSON, "r", encoding="utf-8") as file:
+            xp_data = json.load(file)
+    except FileNotFoundError:
+        xp_data = {}
     xp_leaderboard_command = config["features"]["xp"].get("command")
 
 if config["features"]["xp"]["send"].get("enabled"):
@@ -72,6 +77,11 @@ intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=command_prefix, intents=intents, help_command=None)
 
 # -- Functions -- #
+
+@bot.event
+async def on_ready():
+    save_every_minute.start()
+
 
 # -- Channel -- #
 
@@ -147,15 +157,9 @@ if config["features"]["xp"].get("enabled"):
         if message.author.bot:
             return
 
-        with open(XP_JSON, "r", encoding="utf-8") as file:
-            xp_data = json.load(file)
-
         user_id = str(message.author.id)
         xp_data[user_id] = xp_data.get(user_id, 0) + 1
         current_xp = xp_data[user_id]
-
-        with open(XP_JSON, "w", encoding="utf-8") as file:
-            json.dump(xp_data, file, indent=4)
 
         if config["features"]["xp"]["role"].get("enabled"):
             if current_xp >= xp_role_treshold:
@@ -170,8 +174,6 @@ if config["features"]["xp"].get("enabled"):
 
     @bot.command(name=xp_leaderboard_command)
     async def xp_leaderboard(ctx, member: discord.Member = None):
-        with open(XP_JSON, "r", encoding="utf-8") as file:
-            xp_data = json.load(file)
 
         if member:
             user_id = str(member.id)
@@ -212,14 +214,13 @@ if config["features"]["xp"].get("enabled"):
                 xp_send.reset_cooldown(ctx)
                 return
 
-            with open(XP_JSON, "r", encoding="utf-8") as f:
-                xp = json.load(f)
-
             for m in members:
-                xp[str(m.id)] = xp.get(str(m.id), 0) + amount
+                xp_data[str(m.id)] = xp_data.get(str(m.id), 0) + amount
 
             with open(XP_JSON, "w", encoding="utf-8") as f:
-                json.dump(xp, f, indent=4)
+                json.dump(xp_data, f, indent=4)
+            # Save every given xp aditionally to it being saved every minute
+            # Since the lack of doing so might lead to serious inconsistinces
                 
             logger.info(f"{ctx.author.name} sent {amount} XP to {[m.name for m in members]}")
 
@@ -250,22 +251,21 @@ if config["features"]["xp"].get("enabled"):
                 xp_give.reset_cooldown(ctx)
                 return
             
-            with open(XP_JSON, "r", encoding="utf-8") as file:
-                xp = json.load(file)
 
             giver = str(ctx.author.id)
             receiver = str(member.id)
 
-            if xp.get(giver, 0) < amount:
+            if xp_data.get(giver, 0) < amount:
                 await ctx.reply(f"Sizdə kifayət qədər XP yoxdur.")
                 xp_give.reset_cooldown(ctx)
                 return
 
-            xp[giver] -= amount
-            xp[receiver] = xp.get(receiver, 0) + amount
+            xp_data[giver] -= amount
+            xp_data[receiver] = xp_data.get(receiver, 0) + amount
 
             with open(XP_JSON, "w", encoding="utf-8") as file:
-                json.dump(xp, file, indent=4)
+                json.dump(xp_data, file, indent=4)
+            # Saving it just in case the bot crashes after a xp-give
 
             logger.info(f"{ctx.author.name} gave {amount} XP to {member.name}")
 
@@ -296,12 +296,10 @@ if config["features"]["xp"].get("enabled"):
                 xp_bet.reset_cooldown(ctx)
                 return
             
-            with open(XP_JSON, "r", encoding="utf-8") as file:
-                xp = json.load(file)
 
             bettor = str(ctx.author.id)
 
-            if xp.get(bettor, 0) < amount:
+            if xp_data.get(bettor, 0) < amount:
                 await ctx.reply(f"Sizdə kifayət qədər XP yoxdur.")
                 xp_bet.reset_cooldown(ctx)
                 return
@@ -311,12 +309,14 @@ if config["features"]["xp"].get("enabled"):
             winner = random.random() < 0.1
 
             if winner:
-                xp[bettor] += amount
+                xp_data[bettor] += amount
             else:
-                xp[bettor] -= amount
+                xp_data[bettor] -= amount
 
             with open(XP_JSON, "w", encoding="utf-8") as file:
-                json.dump(xp, file, indent=4)
+                json.dump(xp_data, file, indent=4)
+            # Betting might often lead to more serious XP losses
+            # for this reason i think we should save the xp_data here aswell
             
             if winner:
                 logger.info(f"{ctx.author.name} won {amount}")
@@ -340,13 +340,14 @@ if config["features"]["xp"].get("enabled"):
                 xp_daily.reset_cooldown(ctx)
                 return
             
-            with open(XP_JSON, "r", encoding="utf-8") as file:
-                xp = json.load(file)
-            
             user = str(ctx.author.id)
             amount = random.randint(xp_daily_minimum, xp_daily_maximum)
 
-            xp[user] += amount
+            xp_data[user] = xp_data.get(user, 0) + amount
+            # .get() for the case of a KeyError
+
+            with open(XP_JSON, "w", encoding="utf-8") as f:
+                json.dump(xp_data, f, indent=4)
 
             logger.info(f"{ctx.author.name} used daily and got {amount}")
 
@@ -391,5 +392,11 @@ if config["features"]["meme"].get("enabled"):
         if isinstance(error, commands.CommandOnCooldown):
             seconds_left = math.ceil(error.retry_after)
             await ctx.reply(f"Bu əmri təkrar etmək üçün {seconds_left} saniyə gözləməlisiniz!")
+@tasks.loop(minutes=1)
+async def save_every_minute():
+    with open(XP_JSON, "w", encoding="utf-8") as f:
+        json.dump(xp_data, f, indent=4)
+    logger.info(f"Xp file saved")
+    
 
 bot.run(discord_token)
