@@ -29,7 +29,7 @@
         "enabled": true,
         "command": "xp-give",
         "cooldown": 3600,
-        "maximum": 1000,
+        "maximum": 10,
         "roleID": 1424030146536411146
       },
       "bet": {
