@@ -434,7 +434,7 @@ if config["features"]["xp"].get("enabled"):
 
             logger.info(f"XP Event started by {ctx.author.name} | VC: {vc} | XPPM: {xppm}")
 
-            await ctx.reply(f"XP Event başladı!\n" f"VC: <#{vc}>\n" f"XP / dəqiqə: {xppm}")
+            await ctx.reply(f"XP Event başladı!\n" f"VC: <#{vc}>\n" f"XP / Dəqiqə: {xppm}")
 
         @bot.command(name=xp_event_stop_command)
         @commands.cooldown(1, xp_event_cooldown, commands.BucketType.user)
