@@ -57,6 +57,10 @@
       }
     },
 
+    "help": {
+      "enabled": true
+    },
+
     "welcome": {
       "enabled": true,
       "message": "Xoş gəldin",
