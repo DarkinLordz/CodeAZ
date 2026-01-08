@@ -495,4 +495,15 @@ if config["features"]["meme"].get("enabled"):
             seconds_left = math.ceil(error.retry_after)
             await ctx.reply(f"Bu əmri təkrar etmək üçün {seconds_left} saniyə gözləməlisiniz!")
 
+# -- Some cool features we added for fun --
+
+"""
+@bot.command(name="salam")
+async def salam(ctx):
+    if ctx.author.id == 865521153552678924:
+        await ctx.reply("Salam Qardaşm")
+        return
+    await ctx.reply("Salam")
+"""
+
 bot.run(discord_token)
