@@ -13,6 +13,7 @@ DATA_DIR = os.path.join(ROOT_DIR, "data") # and so on.
 LOGS_DIR = os.path.join(ROOT_DIR, "logs")
 SRC_DIR = os.path.join(ROOT_DIR, "src")
 
+HELP_JSON = os.path.join(CONFIG_DIR,"help.json")
 CONFIG_JSON = os.path.join(CONFIG_DIR, "config.json") # Gets the path of the config json (config + / + config.json)
 XP_JSON = os.path.join(DATA_DIR, "xp.json") # same thing
 

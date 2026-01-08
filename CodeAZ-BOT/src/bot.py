@@ -1,4 +1,4 @@
-from path import CONFIG_JSON, XP_JSON
+from path import CONFIG_JSON, XP_JSON, HELP_JSON
 from discord.ext import commands
 import discord
 import random
@@ -60,6 +60,11 @@ if config["features"]["xp"]["event"].get("enabled"):
 
 if config["features"]["help"].get("enabled",0):
     help_command = config["features"]["help"].get("command","help")
+    
+    with open(HELP_JSON, "r", encoding="utf-8") as file:
+        command_description = json.load(file)
+
+
 
 if config["features"]["welcome"].get("enabled"):
     welcome_channel = config["features"]["welcome"].get("channelID")
@@ -96,7 +101,9 @@ if config["features"]["channel"].get("enabled"):
 # --- Help ---#
 if config["features"]["help"].get("enabled", 0):
     @bot.command(name=help_command)
-    async def help(ctx):
+    async def help(ctx, command : str):
+
+
         
 
 # -- Welcome -- #
