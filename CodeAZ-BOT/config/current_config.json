@@ -58,7 +58,8 @@
     },
 
     "help": {
-      "enabled": true
+      "enabled": true,
+      "command": "help"
     },
 
     "welcome": {

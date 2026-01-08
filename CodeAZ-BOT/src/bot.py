@@ -58,6 +58,9 @@ if config["features"]["xp"]["event"].get("enabled"):
     xp_event_cooldown = config["features"]["xp"]["event"].get("cooldown")
     xp_event_role = config["features"]["xp"]["event"].get("roleID")
 
+if config["features"]["help"].get("enabled",0):
+    help_command = config["features"]["help"].get("command","help")
+
 if config["features"]["welcome"].get("enabled"):
     welcome_channel = config["features"]["welcome"].get("channelID")
     welcome_message = config["features"]["welcome"].get("message")
@@ -89,6 +92,12 @@ if config["features"]["channel"].get("enabled"):
     async def globally_check_channel(ctx):
         logger.debug(f"Checking if command is allowed in channel {ctx.channel.id}")
         return ctx.channel.id == channel
+    
+# --- Help ---#
+if config["features"]["help"].get("enabled", 0):
+    @bot.command(name=help_command)
+    async def help(ctx):
+        
 
 # -- Welcome -- #
 
