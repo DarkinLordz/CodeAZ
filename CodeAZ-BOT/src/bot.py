@@ -501,16 +501,34 @@ if config["features"]["meme"].get("enabled"):
 @bot.command(name="salam")
 async def salam(ctx):
     if ctx.author.id == 865521153552678924:
-        await ctx.reply("Salam Qardaşım")
+        await ctx.reply("Salam Visionary")
         return
     if ctx.author.id == 869800866264277042:
-        await ctx.reply("Salam Pendir Yeyən Okhlan")
+        await ctx.reply("Salam Pendir")
         return
     if ctx.author.id == 939810994023182346:
-        await ctx.reply("Salam Kişi Adam")
+        await ctx.reply("Salam Kişi")
         return
     if ctx.author.id == 1385948421885657129:
-        await ctx.reply("Salam Pinkie Pie")
+        await ctx.reply("Salam Pinkie")
+        return
+    if ctx.author.id == 759280344766611467:
+        await ctx.reply("Salam Femboy")
+        return
+    if ctx.author.id == 1390065922697330860:
+        await ctx.reply("Salam Sigma")
+        return
+    if ctx.author.id == 567008821373960194:
+        await ctx.reply("Salam Wahabi")
+        return
+    if ctx.author.id == 1431375315824803940:
+        await ctx.reply("Salam Kiber")
+        return
+    if ctx.author.id == 934507667534270566:
+        await ctx.reply("Salam Stalin")
+        return
+    if ctx.author.id == 1405262065333178388:
+        await ctx.reply("Salam Swoak")
         return
     await ctx.reply("Salam")
 """
