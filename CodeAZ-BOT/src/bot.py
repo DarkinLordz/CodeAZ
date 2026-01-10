@@ -104,11 +104,13 @@ if config["features"]["help"].get("enabled", 0):
     @bot.command(name=help_command)
     async def help(ctx, command : str = None):
 
+        default_explanation = command_description.get(default_explanation,"defolt yoxdur")
+
         if command is None:
             all_commands = command_description.keys()
             await ctx.reply("Mövcud əmrlər:\n" + "\n".join(all_commands))
         else:
-            await ctx.reply(f"{command} - {command_description.get(command,'Bu əmr üçün izah yoxdur!')}")
+            await ctx.reply(f"{command} - {command_description.get(command,default_explanation)}")
 
 # -- Welcome -- #
 
