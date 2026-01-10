@@ -59,11 +59,9 @@ if config["features"]["xp"]["event"].get("enabled"):
     xp_event_role = config["features"]["xp"]["event"].get("roleID")
 
 if config["features"]["help"].get("enabled",0):
-    help_command = config["features"]["help"].get("command","help")
-    
+    help_command = config["features"]["help"].get("command","help")    
     with open(HELP_JSON, "r", encoding="utf-8") as file:
         command_description = json.load(file)
-
 
 
 if config["features"]["welcome"].get("enabled"):
@@ -104,13 +102,14 @@ if config["features"]["help"].get("enabled", 0):
     @bot.command(name=help_command)
     async def help(ctx, command : str = None):
 
-        default_explanation = command_description.get(default_explanation,"defolt yoxdur")
+        default_explanation = command_description.get("default","defolt yoxdur")
 
         if command is None:
             all_commands = command_description.keys()
             await ctx.reply("Mövcud əmrlər:\n" + "\n".join(all_commands))
         else:
             await ctx.reply(f"{command} - {command_description.get(command,default_explanation)}")
+        
 
 # -- Welcome -- #
 
