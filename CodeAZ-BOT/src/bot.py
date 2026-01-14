@@ -102,9 +102,7 @@ if config["features"]["help"].get("enabled"):
         default_explanation = help_explanation.get("default")
 
         if command is None:
-            all_commands = help_explanation.keys()
-            if "default" in all_commands:
-                all_commands.remove("default")
+            all_commands = [k for k in help_explanation.keys() if k != "default"]
             await ctx.reply("Mövcud əmrlər:\n" + "\n".join(all_commands))
         else:
             await ctx.reply(f"{command} - {help_explanation.get(command, default_explanation)}")
