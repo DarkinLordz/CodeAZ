@@ -59,7 +59,16 @@
 
     "help": {
       "enabled": true,
-      "command": "help"
+      "command": "help",
+      "explanation": {
+        "default" : "Bu əmr haqqda məlumat yoxdur",
+        "xp": "XP Sıralaması /xp",
+        "xp-give": "XP Ver /xp-give {XP} {@}",
+        "xp-send": "XP Göndər /xp-send {XP} {@}",
+        "xp-bet": "XP Qumarı /xp-bet {XP}",
+        "xp-daily": "XP Günlük",
+        "meme": "Zarafat"
+      }
     },
 
     "welcome": {

@@ -59,7 +59,8 @@
 
     "help": {
       "enabled": false,
-      "command": ""
+      "command": "",
+      "explanation": {}
     },
 
     "welcome": {

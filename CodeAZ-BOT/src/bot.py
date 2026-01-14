@@ -1,4 +1,4 @@
-from path import CONFIG_JSON, XP_JSON, HELP_JSON
+from path import CONFIG_JSON, XP_JSON
 from discord.ext import commands
 import discord
 import random
@@ -58,11 +58,9 @@ if config["features"]["xp"]["event"].get("enabled"):
     xp_event_cooldown = config["features"]["xp"]["event"].get("cooldown")
     xp_event_role = config["features"]["xp"]["event"].get("roleID")
 
-if config["features"]["help"].get("enabled",0):
-    help_command = config["features"]["help"].get("command","help")    
-    with open(HELP_JSON, "r", encoding="utf-8") as file:
-        command_description = json.load(file)
-
+if config["features"]["help"].get("enabled"):
+    help_command = config["features"]["help"].get("command")
+    help_explanation = config["features"]["help"].get("explanation")
 
 if config["features"]["welcome"].get("enabled"):
     welcome_channel = config["features"]["welcome"].get("channelID")
@@ -96,23 +94,20 @@ if config["features"]["channel"].get("enabled"):
         logger.debug(f"Checking if command is allowed in channel {ctx.channel.id}")
         return ctx.channel.id == channel
     
-# --- Help ---#
+# -- Help -- #
 
-if config["features"]["help"].get("enabled", 0):
+if config["features"]["help"].get("enabled"):
     @bot.command(name=help_command)
-    async def help(ctx, command : str = None):
-
-        default_explanation = command_description.get("default","defolt yoxdur")
+    async def help(ctx, command: str = None):
+        default_explanation = help_explanation.get("default")
 
         if command is None:
-            all_commands = command_description.keys()
-            
+            all_commands = help_explanation.keys()
             if "default" in all_commands:
                 all_commands.remove("default")
             await ctx.reply("Mövcud əmrlər:\n" + "\n".join(all_commands))
         else:
-            await ctx.reply(f"{command} - {command_description.get(command,default_explanation)}")
-        
+            await ctx.reply(f"{command} - {help_explanation.get(command, default_explanation)}")
 
 # -- Welcome -- #
 
