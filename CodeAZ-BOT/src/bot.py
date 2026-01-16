@@ -7,11 +7,25 @@ import math
 import time
 import asyncio
 import aiohttp
+import os
+import tempfile
 from log import logger
 
 # -- Constants -- #
 
 xp_cooldowns = {}
+
+# -- XP Save Task -- #
+
+async def save_xp_data():
+    while True:
+        await asyncio.sleep(10)
+        async with xp_lock:
+            with tempfile.NamedTemporaryFile(mode='w', dir=os.path.dirname(XP_JSON), delete=False, suffix='.tmp', encoding='utf-8') as temp_file:
+                json.dump(xp_data, temp_file, indent=4)
+                temp_file.flush()
+                os.fsync(temp_file.fileno())
+            os.replace(temp_file.name, XP_JSON)
 
 # -- Configuration -- #
 
@@ -20,6 +34,15 @@ with open(CONFIG_JSON, "r", encoding="utf-8") as file:
 
 discord_token = config["bot"].get("token")
 command_prefix = config["bot"].get("prefix")
+
+# -- XP Data Caching -- #
+
+xp_data = {}
+xp_lock = asyncio.Lock()
+
+if os.path.exists(XP_JSON):
+    with open(XP_JSON, "r", encoding="utf-8") as file:
+        xp_data = json.load(file)
 
 if config["features"]["channel"].get("enabled"):
     channel = config["features"]["channel"].get("channelID")
@@ -89,6 +112,14 @@ if config["features"]["reaction"]["role"].get("enabled"):
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=command_prefix, intents=intents, help_command=None)
+
+# -- Bot Events -- #
+
+@bot.event
+async def on_ready():
+    logger.info(f"Bot is ready. Logged in as {bot.user}")
+    # Start the XP save task
+    bot.loop.create_task(save_xp_data())
 
 # -- Functions -- #
 
@@ -183,9 +214,6 @@ if config["features"]["xp"].get("enabled"):
         if message.author.bot:
             return
 
-        with open(XP_JSON, "r", encoding="utf-8") as file:
-            xp_data = json.load(file)
-
         user_id = str(message.author.id)
         now = time.time()
 
@@ -197,11 +225,9 @@ if config["features"]["xp"].get("enabled"):
 
         xp_cooldowns[user_id] = now
 
-        xp_data[user_id] = xp_data.get(user_id, 0) + 1
-        current_xp = xp_data[user_id]
-
-        with open(XP_JSON, "w", encoding="utf-8") as file:
-            json.dump(xp_data, file, indent=4)
+        async with xp_lock:
+            xp_data[user_id] = xp_data.get(user_id, 0) + 1
+            current_xp = xp_data[user_id]
 
         if config["features"]["xp"]["role"].get("enabled"):
             if current_xp >= xp_role_treshold:
@@ -216,20 +242,18 @@ if config["features"]["xp"].get("enabled"):
 
     @bot.command(name=xp_leaderboard_command)
     async def xp_leaderboard(ctx, member: discord.Member = None):
-        with open(XP_JSON, "r", encoding="utf-8") as file:
-            xp_data = json.load(file)
+        async with xp_lock:
+            if member:
+                user_id = str(member.id)
+                xp = xp_data.get(user_id, 0)
 
-        if member:
-            user_id = str(member.id)
-            xp = xp_data.get(user_id, 0)
+                sorted_users = sorted(xp_data.items(), key=lambda x: x[1], reverse=True)
 
-            sorted_users = sorted(xp_data.items(), key=lambda x: x[1], reverse=True)
+                rank = next((i + 1 for i, (uid, _) in enumerate(sorted_users) if uid == user_id), 0)
+                await ctx.reply(f"\u200b{rank}. {member.display_name} - {xp} XP")
+                return
 
-            rank = next((i + 1 for i, (uid, _) in enumerate(sorted_users) if uid == user_id), 0)
-            await ctx.reply(f"\u200b{rank}. {member.display_name} - {xp} XP")
-            return
-
-        top_users = sorted(xp_data.items(), key=lambda x: x[1], reverse=True)[:10]
+            top_users = sorted(xp_data.items(), key=lambda x: x[1], reverse=True)[:10]
 
         leaderboard = ""
         for i, (user_id, xp) in enumerate(top_users, start=1):
@@ -258,14 +282,9 @@ if config["features"]["xp"].get("enabled"):
                 xp_send.reset_cooldown(ctx)
                 return
 
-            with open(XP_JSON, "r", encoding="utf-8") as f:
-                xp = json.load(f)
-
-            for m in members:
-                xp[str(m.id)] = xp.get(str(m.id), 0) + amount
-
-            with open(XP_JSON, "w", encoding="utf-8") as f:
-                json.dump(xp, f, indent=4)
+            async with xp_lock:
+                for m in members:
+                    xp_data[str(m.id)] = xp_data.get(str(m.id), 0) + amount
                 
             logger.info(f"{ctx.author.name} sent {amount} XP to {[m.name for m in members]}")
 
@@ -296,22 +315,17 @@ if config["features"]["xp"].get("enabled"):
                 xp_give.reset_cooldown(ctx)
                 return
             
-            with open(XP_JSON, "r", encoding="utf-8") as file:
-                xp = json.load(file)
-
             giver = str(ctx.author.id)
             receiver = str(member.id)
 
-            if xp.get(giver, 0) < amount:
-                await ctx.reply(f"Sizdə kifayət qədər XP yoxdur.")
-                xp_give.reset_cooldown(ctx)
-                return
+            async with xp_lock:
+                if xp_data.get(giver, 0) < amount:
+                    await ctx.reply(f"Sizdə kifayət qədər XP yoxdur.")
+                    xp_give.reset_cooldown(ctx)
+                    return
 
-            xp[giver] -= amount
-            xp[receiver] = xp.get(receiver, 0) + amount
-
-            with open(XP_JSON, "w", encoding="utf-8") as file:
-                json.dump(xp, file, indent=4)
+                xp_data[giver] -= amount
+                xp_data[receiver] = xp_data.get(receiver, 0) + amount
 
             logger.info(f"{ctx.author.name} gave {amount} XP to {member.name}")
 
@@ -342,27 +356,22 @@ if config["features"]["xp"].get("enabled"):
                 xp_bet.reset_cooldown(ctx)
                 return
             
-            with open(XP_JSON, "r", encoding="utf-8") as file:
-                xp = json.load(file)
-
             bettor = str(ctx.author.id)
 
-            if xp.get(bettor, 0) < amount:
-                await ctx.reply(f"Sizdə kifayət qədər XP yoxdur.")
-                xp_bet.reset_cooldown(ctx)
-                return
-            
-            logger.info(f"{ctx.author.name} bet {amount}")
+            async with xp_lock:
+                if xp_data.get(bettor, 0) < amount:
+                    await ctx.reply(f"Sizdə kifayət qədər XP yoxdur.")
+                    xp_bet.reset_cooldown(ctx)
+                    return
+                
+                logger.info(f"{ctx.author.name} bet {amount}")
 
-            winner = random.random() < 0.5
+                winner = random.random() < 0.5
 
-            if winner:
-                xp[bettor] += amount
-            else:
-                xp[bettor] -= amount
-
-            with open(XP_JSON, "w", encoding="utf-8") as file:
-                json.dump(xp, file, indent=4)
+                if winner:
+                    xp_data[bettor] += amount
+                else:
+                    xp_data[bettor] -= amount
             
             if winner:
                 logger.info(f"{ctx.author.name} won {amount}")
@@ -386,16 +395,11 @@ if config["features"]["xp"].get("enabled"):
                 xp_daily.reset_cooldown(ctx)
                 return
             
-            with open(XP_JSON, "r", encoding="utf-8") as file:
-                xp = json.load(file)
-            
             user = str(ctx.author.id)
             amount = random.randint(xp_daily_minimum, xp_daily_maximum)
 
-            xp[user] += amount
-
-            with open(XP_JSON, "w", encoding="utf-8") as file:
-                json.dump(xp, file, indent=4)
+            async with xp_lock:
+                xp_data[user] = xp_data.get(user, 0) + amount
             
             logger.info(f"{ctx.author.name} used daily and got {amount}")
 
@@ -419,23 +423,18 @@ if config["features"]["xp"].get("enabled"):
             while xp_event_active:
                 await asyncio.sleep(60)
 
-                with open(XP_JSON, "r", encoding="utf-8") as file:
-                    xp_data = json.load(file)
-
-                for guild in bot.guilds:
-                    vc = guild.get_channel(xp_event_vc_id)
-                    if not vc:
-                        continue
-
-                    for member in vc.members:
-                        if member.bot:
+                async with xp_lock:
+                    for guild in bot.guilds:
+                        vc = guild.get_channel(xp_event_vc_id)
+                        if not vc:
                             continue
 
-                        user_id = str(member.id)
-                        xp_data[user_id] = xp_data.get(user_id, 0) + xp_event_xppm
+                        for member in vc.members:
+                            if member.bot:
+                                continue
 
-                with open(XP_JSON, "w", encoding="utf-8") as file:
-                    json.dump(xp_data, file, indent=4)
+                            user_id = str(member.id)
+                            xp_data[user_id] = xp_data.get(user_id, 0) + xp_event_xppm
 
         @bot.command(name=xp_event_start_command)
         @commands.cooldown(1, xp_event_cooldown, commands.BucketType.user)
