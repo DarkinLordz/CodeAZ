@@ -62,13 +62,13 @@
       "enabled": true,
       "command": "help",
       "explanation": {
-        "default" : "Bu əmr haqqda məlumat yoxdur",
-        "xp": "XP Sıralaması /xp",
-        "xp-give": "XP Ver /xp-give {XP} {@}",
-        "xp-send": "XP Göndər /xp-send {XP} {@}",
-        "xp-bet": "XP Qumarı /xp-bet {XP}",
-        "xp-daily": "XP Günlük",
-        "meme": "Zarafat"
+        "default" : "Bu əmr haqqda məlumat yoxdur, mövcud əmrləri görmək üçün sadəcə !help yazın.",
+        "xp": "XP Sıralamasını çap edir. \nİşlədilməsi: !xp",
+        "xp-give": "Sizin balansdan {@}-ə {XP} qədər xp göndərir. \nİşlədilməsi: !xp-give {XP} {@}",
+        "xp-send": "Sizin balansdan çıxartmadan {@}-ə {XP} qədər xp göndərir göndərir. \nİşlədilməsi: !xp-send {XP} {@} (Yanlız admin işlədə bilər)",
+        "xp-bet": "XP Qumarı, siz bu komutu icra edərkən ya {XP} qədər xp itirəcək yada qazanassız, uğurlar! \nİşlədilməsi: !xp-bet {XP}",
+        "xp-daily": "Yanlız 24 saatdan bir işlədə bildiyiniz komutdur, bunu icra edəndə sizə random bir miqdarda xp veriləcək. \nİşlədilməsi: !xp-daily",
+        "meme": "İnternetdən bir meme şəkili tapıb göndərəcək. \nİşlədilməsi: !meme"
       }
     },
 
