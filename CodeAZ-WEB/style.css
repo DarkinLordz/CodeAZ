@@ -1,4 +1,26 @@
 .paragraph
 {
-    background-color: rgb(170, 255, 235);
+    background-color: rgba(163, 163, 19, 0.4);
+    border-radius: 10px;
+    padding: 20px;
+
+    width: 80%;
+    text-align: center;
+
+}
+
+.background
+{
+    background-image: linear-gradient(#5dbdee,#ffffff);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    
+}
+.center {
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
