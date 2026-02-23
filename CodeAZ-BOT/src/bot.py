@@ -502,7 +502,7 @@ if config["features"]["xp"].get("enabled"):
 if config["features"]["survey"].get("enabled"):
     submitted_users = set()
 
-    def save_age(age):
+    async def save_age(age):
         with open(SURVEY_JSON, "r") as f:
             data = json.load(f)
         data.append(age)
