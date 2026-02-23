@@ -88,6 +88,10 @@
       "channelID": 1414896752925999164
     },
 
+    "survey": {
+      "enabled": true
+    },
+
     "meme": {
       "enabled": true,
       "command": "meme",

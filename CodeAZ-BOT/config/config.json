@@ -80,6 +80,10 @@
       "channelID": 0
     },
 
+    "survey": {
+      "enabled": false
+    },
+
     "meme": {
       "enabled": false,
       "command": "",

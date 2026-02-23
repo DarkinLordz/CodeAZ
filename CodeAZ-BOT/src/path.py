@@ -15,5 +15,6 @@ SRC_DIR = os.path.join(ROOT_DIR, "src")
 
 CONFIG_JSON = os.path.join(CONFIG_DIR, "config.json") # Gets the path of the config json (config + / + config.json)
 XP_JSON = os.path.join(DATA_DIR, "xp.json") # same thing
+SURVEY_JSON = os.path.join(DATA_DIR, "survey.json")
 
 SYSTEM_LOG = os.path.join(LOGS_DIR, "system.log") # system logs are located in LOGS_DIR\system.log

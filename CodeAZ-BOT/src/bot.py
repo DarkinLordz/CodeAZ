@@ -1,4 +1,4 @@
-from path import CONFIG_JSON, XP_JSON
+from path import CONFIG_JSON, XP_JSON, SURVEY_JSON
 from discord.ext import commands
 import discord
 import random
@@ -496,6 +496,37 @@ if config["features"]["xp"].get("enabled"):
             logger.info(f"XP Event stopped by {ctx.author.name}")
 
             await ctx.reply("XP Event dayandırıldı.")
+
+# -- Survey --
+
+submitted_users = set()
+
+def save_age(age):
+    with open(SURVEY_JSON, "r") as f:
+        data = json.load(f)
+    data.append(age)
+    with open(SURVEY_JSON, "w") as f:
+        json.dump(data, f)
+
+@bot.event
+async def on_message(message):
+    if message.guild is None:
+        user_key = str(message.author.id)
+
+        if user_key in submitted_users:
+            await message.channel.send("Siz artıq yaşınızı göndərmisiniz.")
+            return
+
+        try:
+            age = int(message.content)
+            if 13 <= age <= 100:
+                save_age(age)
+                submitted_users.add(user_key)
+                await message.channel.send("Yaşınız anonim olaraq qeyd olundu.")
+            else:
+                await message.channel.send("Zəhmət olmasa 13-100 arası bir yaş yazın.")
+        except ValueError:
+            await message.channel.send("Yaşınızı yalnız rəqəm olaraq yazın: `13-100`")
 
 # -- Meme -- #
 
