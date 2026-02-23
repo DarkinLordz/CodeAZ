@@ -512,6 +512,9 @@ if config["features"]["survey"].get("enabled"):
     @bot.event
     async def on_message(message):
         if message.guild is None:
+            if message.author.bot:
+                return
+
             user_key = str(message.author.id)
 
             if user_key in submitted_users:
